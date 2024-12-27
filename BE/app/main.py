@@ -1,11 +1,14 @@
 from fastapi import FastAPI
+from app.api import user_api
+from app.database.db import init_db
 import uvicorn
 
 app = FastAPI()
-
-@app.get("/hello")
-def say_hello():
-    return "Hello World!!!"
+@app.on_event("startup")
+async def on_startup():
+    print("Starting the Fatapi application.....")
+    await init_db()
+app.include_router(user_api.router)
 
 if __name__ == "__main__" :
     uvicorn.run(app,host="0.0.0.0",port=8000)
