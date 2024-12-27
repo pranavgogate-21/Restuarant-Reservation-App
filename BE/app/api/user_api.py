@@ -1,5 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.Models.response_builder import ResponseBuilder
 from app.database.db import get_db_session
 from app.database.user_db import USERDB
 from sqlalchemy.future import select
@@ -13,7 +15,7 @@ router = APIRouter()
 async def get_all_user(db: AsyncSession = Depends(get_db_session)):
     response = await db.execute(select(USERDB))
     users = response.scalars().all()
-    return users
+    return ResponseBuilder.success(users,status.HTTP_200_OK)
 
 @router.get("/user/{user_id}")
 async def get_user(user_id:int, db: AsyncSession = Depends(get_db_session)):
@@ -21,8 +23,8 @@ async def get_user(user_id:int, db: AsyncSession = Depends(get_db_session)):
         result = await db.execute(select(USERDB).where(USERDB.id == user_id))
         user = result.scalar_one_or_none()
         if user is None:
-            raise HTTPException(status_code=404, detail="User not found")
-        return user
+            ResponseBuilder.error("User Not found",status.HTTP_404_NOT_FOUND)
+        return ResponseBuilder.success(user,status.HTTP_200_OK)
     except Exception as e:
         print(f"An exception occured in get_user:{e}")
 
@@ -31,5 +33,5 @@ async def add_user(user:USERDB, db: AsyncSession = Depends(get_db_session)):
     db.add(user)
     await db.commit()
     await db.refresh(user)
-    return user
+    return ResponseBuilder.success(user, status.HTTP_201_CREATED)
 
