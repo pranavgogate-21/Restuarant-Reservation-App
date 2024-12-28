@@ -26,9 +26,9 @@ async def get_user(user_id:int, db: AsyncSession = Depends(get_db_session)):
             ResponseBuilder.error("User Not found",status.HTTP_404_NOT_FOUND)
         return ResponseBuilder.success(user,status.HTTP_200_OK)
     except Exception as e:
-        print(f"An exception occured in get_user:{e}")
+        print(f"An exception occurred in get_user:{e}")
 
-@router.post("/user")
+@router.post("/register")
 async def add_user(user:USERDB, db: AsyncSession = Depends(get_db_session)):
     db.add(user)
     await db.commit()
