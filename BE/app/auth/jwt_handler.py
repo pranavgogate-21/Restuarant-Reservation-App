@@ -1,9 +1,7 @@
 from jose import jwt
 from jwt import PyJWKClient
 from datetime import datetime, timedelta, timezone
-# from app.auth.config import SECRET_KEY, ALGORITHM
-SECRET_KEY = "FLDJFASJFLDS209830328LJDLDKJCLDJSLJ2739UJDLFJSLDJF"
-ALGORITHM = "HS256"
+from app.auth.config import SECRET_KEY, ALGORITHM
 
 
 def create_jwt_token(data:dict, expires_delta: timedelta | None = None):
