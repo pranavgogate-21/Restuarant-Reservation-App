@@ -1,9 +1,14 @@
 from pydantic import BaseModel
 
+from app.database.user_db import USERDB
+
+
 class User(BaseModel):
-    id:int
+    id:str
     first_name:str
     last_name:str
     email:str
-    password:str
-    phoneNumber:str
+    phone_number:str
+
+    class Config:
+        from_attributes = True

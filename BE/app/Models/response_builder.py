@@ -9,3 +9,7 @@ class ResponseBuilder:
     @staticmethod
     def error(data=None, status=None):
         return JSONResponse({"error":data}, status_code=status)
+
+    @staticmethod
+    def tokens(token=None, status=None):
+        return JSONResponse({"token": token}, status_code=status)

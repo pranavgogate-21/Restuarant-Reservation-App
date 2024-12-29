@@ -1,7 +1,7 @@
-from jose import jwt
+from jose import jwt, JWTError
 from jwt import PyJWKClient
 from datetime import datetime, timedelta, timezone
-from app.auth.config import SECRET_KEY, ALGORITHM
+from app.auth.config import SECRET_KEY, ALGORITHM, ISSUER
 
 
 def create_jwt_token(data:dict, expires_delta: timedelta | None = None):
@@ -10,9 +10,13 @@ def create_jwt_token(data:dict, expires_delta: timedelta | None = None):
     expire = time_ + timedelta(minutes=30)
     token_data.update({"iat":time_})
     token_data.update({"exp":expire})
+    token_data.update({"iss": ISSUER})
     token = jwt.encode(token_data, SECRET_KEY, ALGORITHM)
-    print(token)
+    return token
 
-# def validate_jwt_token()
-
-create_jwt_token({"name":"Pranav","user_id":"1djdl23"})
+def validate_jwt_token(token: str):
+    try:
+        payload = jwt.decode(token, SECRET_KEY, ALGORITHM, issuer=ISSUER)
+        return payload
+    except JWTError:
+        raise ValueError("Invalid token or token has expired")
