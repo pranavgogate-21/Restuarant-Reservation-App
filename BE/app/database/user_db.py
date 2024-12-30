@@ -14,4 +14,4 @@ class USERDB(SQLModel, table=True):
     password: str
     phone_number: str = Field(index=True,sa_column_kwargs={"unique": True})
 
-    tokens: List["Token"] = Relationship(back_populates="user")
+    tokens: List["Token"] = Relationship(back_populates="user", cascade_delete=True)
