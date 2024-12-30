@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.Models.response_builder import ResponseBuilder
+from app.Models.user import User
 from app.auth.jwt_handler import create_jwt_token, validate_jwt_token
 from app.auth.password_config import hash_password
 from app.database.db import get_db_session
@@ -22,7 +23,8 @@ async def add_user(user: USERDB, db: AsyncSession = Depends(get_db_session)):
         db.add(user)
         await db.commit()
         await db.refresh(user)
-        return ResponseBuilder.success(user, status.HTTP_201_CREATED)
+        user = User.from_orm(user)
+        return ORJSONResponse({"data": user}, status.HTTP_201_CREATED)
     except Exception as e:
         print(f"An exception occurred in add_user:{e}")
 
