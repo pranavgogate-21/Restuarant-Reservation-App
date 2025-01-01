@@ -1,6 +1,5 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
-from app.database.user_db import USERDB
 
 
 class User(BaseModel):
@@ -11,6 +10,13 @@ class User(BaseModel):
 
     class Config:
         from_attributes = True
+
+class UserIn(BaseModel):
+    first_name: str = Field(max_length=15)
+    last_name: str = Field(max_length=15)
+    email: str = Field(pattern=r'^[^@]+@[^@]+[^@]+\.com$')
+    password: str = Field(min_length=5, pattern=r'^[A-Za-z\d]{5,}$')
+    phone_number: str = Field(min_length=10, max_length=10, pattern=r'^\d+$')
 
 class UserOut(BaseModel):
     first_name: str | None = None
