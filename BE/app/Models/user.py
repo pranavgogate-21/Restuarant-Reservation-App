@@ -26,4 +26,4 @@ class UserOut(BaseModel):
 
 class UserPassword(BaseModel):
     old_password: str
-    new_password: str
+    new_password: str = Field(min_length=5, pattern=r'^[A-Za-z\d]{5,}$')
