@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy import or_
 
-from app.Models.user import UserOut, UserPassword
+from app.Models.user import UserUpdate, UserPassword
 from app.auth.password_config import verify_password, hash_password
 from app.database.user_db import USERDB
 
@@ -32,17 +32,21 @@ class UserService:
          except Exception as e:
              print(f"An exception occurred in authenticate_user:{e}")
 
-     async def update_user_service(self, user: UserOut, user_id: str):
+     async def update_user_service(self, user: UserUpdate, user_id: str):
          try:
              print("From update_user_service....")
              result = await self.db.execute(select(USERDB).where(USERDB.id == user_id))
              user_obj = result.scalar_one_or_none()
              if user_obj is None:
                  return False, "User Not Found"
-             user_obj.first_name = user.first_name
-             user_obj.last_name = user.last_name
-             user_obj.email = user.email
-             user_obj.phone_number = user.phone_number
+             if user.first_name is not None:
+                user_obj.first_name = user.first_name
+             if user.last_name is not None:
+                user_obj.last_name = user.last_name
+             if user.email is not None:
+                user_obj.email = user.email
+             if user.phone_number is not None:
+                user_obj.phone_number = user.phone_number
              self.db.add(user_obj)
              await self.db.commit()
              await self.db.refresh(user_obj)

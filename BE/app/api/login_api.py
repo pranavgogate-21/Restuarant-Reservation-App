@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.Models.response_builder import ResponseBuilder
-from app.Models.user import User
+from app.Models.user import User, UserIn
 from app.auth.jwt_handler import create_jwt_token, validate_jwt_token
 from app.auth.password_config import hash_password
 from app.database.db import get_db_session
@@ -17,8 +17,10 @@ router = APIRouter()
 
 
 @router.post("/register")
-async def add_user(user: USERDB, db: AsyncSession = Depends(get_db_session)):
+async def add_user(user_in: UserIn, db: AsyncSession = Depends(get_db_session)):
     try:
+        print("From add_user api.....")
+        user = USERDB.model_validate(user_in)
         user.password = hash_password(user.password)
         db.add(user)
         await db.commit()

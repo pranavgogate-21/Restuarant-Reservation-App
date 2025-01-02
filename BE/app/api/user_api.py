@@ -7,7 +7,7 @@ from app.database.db import get_db_session
 from app.database.user_db import USERDB
 from sqlalchemy.future import select
 
-from app.Models.user import User, UserOut, UserPassword
+from app.Models.user import User, UserUpdate, UserPassword
 from app.service.user_service import UserService
 from app.utils.custom_encoder import ORJSONResponse
 
@@ -34,14 +34,14 @@ async def get_user(user_id:str, db: AsyncSession = Depends(get_db_session)):
         print(f"An exception occurred in get_user:{e}")
 
 @router.put("/user/{user_id}")
-async def update_user(user_id: str, user: UserOut, db: AsyncSession = Depends(get_db_session)):
+async def update_user(user_id: str, user: UserUpdate, db: AsyncSession = Depends(get_db_session)):
     try:
         print("From update_user.....")
         user_service = UserService(db)
         is_updated, data = await user_service.update_user_service(user, user_id)
         if not is_updated:
-            ResponseBuilder.error(data, status.HTTP_404_NOT_FOUND)
-        user = User.from_orm(user)
+            return ResponseBuilder.error(data, status.HTTP_404_NOT_FOUND)
+        user = User.from_orm(data)
         return ORJSONResponse({"data": user}, status_code=status.HTTP_200_OK)
 
     except Exception as e:
