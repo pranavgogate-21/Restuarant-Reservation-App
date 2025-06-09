@@ -1,4 +1,7 @@
+from typing import Annotated
+
 from fastapi import APIRouter, Depends, status
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.Models.response_builder import ResponseBuilder
@@ -10,11 +13,12 @@ from app.database.user_db import USERDB
 from app.Models.LoginRequest import Login
 from app.Models.token import TokenOut
 from app.service.auth_service import AuthService
-from app.service.user_service import UserService
+import app.service.user_service  as user_serve
 from app.utils.custom_encoder import ORJSONResponse
 
 router = APIRouter()
 
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login")
 
 @router.post("/register")
 async def add_user(user_in: UserIn, db: AsyncSession = Depends(get_db_session)):
@@ -32,11 +36,11 @@ async def add_user(user_in: UserIn, db: AsyncSession = Depends(get_db_session)):
 
 
 @router.post("/login")
-async def login_user_and_authenticate(login_user: Login, db: AsyncSession = Depends(get_db_session)):
+async def login_user_and_authenticate(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], db: AsyncSession = Depends(get_db_session)):
     try:
-        username = login_user.username
-        password = login_user.password
-        user_service = UserService(db)
+        username = form_data.username
+        password = form_data.password
+        user_service = user_serve.UserService(db)
         auth_service = AuthService(db)
         is_authenticated, data = await user_service.authenticate_user(username, password)
         if not is_authenticated:
