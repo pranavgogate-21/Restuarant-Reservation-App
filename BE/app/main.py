@@ -6,7 +6,7 @@ import uvicorn
 app = FastAPI()
 @app.on_event("startup")
 async def on_startup():
-    print("Starting the Fatapi application.....")
+    print("Starting the Fastapi application.....")
     await init_db()
 app.include_router(user_api.router)
 app.include_router(login_api.router)

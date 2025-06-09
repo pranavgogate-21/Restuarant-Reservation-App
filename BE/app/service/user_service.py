@@ -1,9 +1,14 @@
-from fastapi import Depends
+from typing import Annotated
+
+from fastapi import Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy import or_
 
+from app.Models.response_builder import ResponseBuilder
 from app.Models.user import UserUpdate, UserPassword
+import app.api.login_api as login
+from app.auth.jwt_handler import validate_jwt_token
 from app.auth.password_config import verify_password, hash_password
 from app.database.user_db import USERDB
 
@@ -84,3 +89,13 @@ class UserService:
              return True, user
          except Exception as e:
              print(f"An exception occurred in delete_user_service:{e}")
+
+async def get_current_user(token : Annotated[str, Depends(login.oauth2_scheme)]):
+    try:
+        print("From get_current_user....")
+        is_valid, data = validate_jwt_token(token)
+        if not is_valid:
+            return ResponseBuilder.error({"UnAuthorized", status.HTTP_401_UNAUTHORIZED})
+        return data.get("user_id")
+    except Exception as e:
+        print(f"An exception occurred in get_current_user:{e}")

@@ -1,3 +1,5 @@
+from typing import Annotated
+
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -8,20 +10,20 @@ from app.database.user_db import USERDB
 from sqlalchemy.future import select
 
 from app.Models.user import User, UserUpdate, UserPassword
-from app.service.user_service import UserService
+from app.service.user_service import UserService, get_current_user
 from app.utils.custom_encoder import ORJSONResponse
 
 router = APIRouter()
 
 @router.get("/user/all")
-async def get_all_user(db: AsyncSession = Depends(get_db_session)):
+async def get_all_user(current_user: Annotated[str, Depends(get_current_user)],  db: AsyncSession = Depends(get_db_session)):
     response = await db.execute(select(USERDB))
     users = response.scalars().all()
     users = [User.from_orm(user) for user in users]
     return ORJSONResponse({"data": users}, status_code=status.HTTP_200_OK)
 
 @router.get("/user/{user_id}")
-async def get_user(user_id:str, db: AsyncSession = Depends(get_db_session)):
+async def get_user(user_id:str, current_user: Annotated[str, Depends(get_current_user)], db: AsyncSession = Depends(get_db_session)):
     try:
         result = await db.execute(select(USERDB).where(USERDB.id == user_id))
         user = result.scalar_one_or_none()
@@ -34,7 +36,8 @@ async def get_user(user_id:str, db: AsyncSession = Depends(get_db_session)):
         print(f"An exception occurred in get_user:{e}")
 
 @router.put("/user/{user_id}")
-async def update_user(user_id: str, user: UserUpdate, db: AsyncSession = Depends(get_db_session)):
+async def update_user(user_id: str, user: UserUpdate, current_user: Annotated[str, Depends(get_current_user)],
+                      db: AsyncSession = Depends(get_db_session)):
     try:
         print("From update_user.....")
         user_service = UserService(db)
@@ -48,7 +51,8 @@ async def update_user(user_id: str, user: UserUpdate, db: AsyncSession = Depends
         print(f"An exception occurred in update_user:{e}")
 
 @router.patch("/user/{user_id}")
-async def update_user_password(user_id: str, password: UserPassword, db:AsyncSession = Depends(get_db_session)):
+async def update_user_password(user_id: str, password: UserPassword, current_user: Annotated[str, Depends(get_current_user)],
+                               db:AsyncSession = Depends(get_db_session)):
     try:
         print("From update_user_password....")
         user_service = UserService(db)
@@ -61,7 +65,8 @@ async def update_user_password(user_id: str, password: UserPassword, db:AsyncSes
         print(f"An exception occurred in update_user_password:{e}")
 
 @router.delete("/user/{user_id}")
-async def delete_user(user_id: str, db: AsyncSession = Depends(get_db_session)):
+async def delete_user(user_id: str, current_user: Annotated[str, Depends(get_current_user)],
+                      db: AsyncSession = Depends(get_db_session)):
     try:
         print("From delete_user.....")
         user_service = UserService(db)
