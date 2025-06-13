@@ -1,18 +1,18 @@
 from pydantic import BaseModel, Field, AfterValidator
 import re
-
+from logging import getLogger
 from typing_extensions import Annotated
-
+logger = getLogger(__name__)
 
 def validate_password(password: str):
-    print("from validate_password.....")
+    logger.info("from validate_password.....")
     if re.search(r'[A-Za-z]', password):
         if re.search(r'\d', password):
             return password
     raise ValueError("Your Password is weak. Tip: Include both numbers and letters")
 
 def validate_phone_number(phone_number: str):
-    print("from validate_phone_number......")
+    logger.info("from validate_phone_number......")
     if len(phone_number) != 10 :
         raise ValueError("Phone number must contain exactly 10 digits")
     for char in phone_number:

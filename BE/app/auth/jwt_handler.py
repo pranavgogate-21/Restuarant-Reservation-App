@@ -3,7 +3,8 @@ from jwt import PyJWKClient
 import time
 from datetime import datetime, timedelta, timezone
 from app.auth.config import SECRET_KEY, ALGORITHM, ISSUER
-
+from logging import getLogger
+logger = getLogger(__name__)
 
 def create_jwt_token(data:dict, expires_delta: timedelta | None = None):
     token_data = data.copy()
@@ -36,10 +37,10 @@ def validate_jwt_token(token: str):
     try:
         data = jwt.get_unverified_claims(token)
         if data["iss"] != ISSUER:
-            print("Invalid Token Issuer mismatch")
+            logger.info("Invalid Token Issuer mismatch")
             return False, "Invalid Token Issuer mismatch"
         if int(datetime.now(timezone.utc).timestamp()) > data["exp"]:
-            print("Expired token")
+            logger.info("Expired token")
             return False, "token expired"
         payload = jwt.decode(token, SECRET_KEY, ALGORITHM, issuer=ISSUER)
         return True, payload
@@ -50,4 +51,4 @@ def get_payload_data(token: str):
     try:
         return jwt.get_unverified_claims(token)
     except Exception as e:
-        print(f"An error occurred in get_payload_data:{e}")
+        logger.error(f"An error occurred in get_payload_data:{e}")
