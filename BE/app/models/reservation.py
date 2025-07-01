@@ -18,12 +18,8 @@ class ReservationUpdate(Reservation):
     user_id: str | None = None
     guests: int | None = None
 
-class ReservationOut(ReservationUpdate):
+class ReservationOut(Reservation):
     id: str | None = None
 
-    @classmethod
-    def convert_to_api_model(cls, data: dict):
-        instance = cls(**{k:v for k, v in data.items() if k not in ['booking_time', 'booking_date']})
-        instance.booking_date = datetime.date.fromisoformat(data["booking_date"])
-        instance.booking_time = datetime.time.fromisoformat(data["booking_time"])
-        return instance
+    class Config:
+        from_attributes = True

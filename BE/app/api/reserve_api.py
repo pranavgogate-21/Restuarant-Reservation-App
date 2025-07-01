@@ -19,7 +19,7 @@ router = APIRouter(prefix="/reservations")
 async def make_reservation(reservation: Reservation, db: AsyncSession = Depends(get_db_session)):
     try:
         logger.info("An error occurred in make_reservation")
-        reservation = ReservationDB.convert_to_db_model(reservation.model_dump())
+        reservation = ReservationDB.from_orm(reservation)
         res_service = ReservationService(db)
         result = await res_service.add_reservation_in_restaurant(reservation)
         return ORJSONResponse({"data":result}, status_code=status.HTTP_201_CREATED)
