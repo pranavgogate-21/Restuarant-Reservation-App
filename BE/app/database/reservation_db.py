@@ -1,5 +1,5 @@
 import uuid
-from datetime import date,time
+from datetime import date,time, datetime
 from typing import Optional
 
 from sqlalchemy import Column
@@ -16,6 +16,7 @@ class ReservationDB(SQLModel, table=True):
     user_id: str = Field(index=True, foreign_key="userdb.id", ondelete="CASCADE")
     booking_date: date
     booking_time: time
+    created_at: datetime = Field(default_factory=datetime.utcnow)
     guests:int
 
     user: Optional["USERDB"] = Relationship(back_populates="reservations")
