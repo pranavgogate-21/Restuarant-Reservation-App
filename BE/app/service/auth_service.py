@@ -1,8 +1,14 @@
+from typing import Annotated
+
+from fastapi import Depends, status, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from app.Models.token import TokenOut
+
+from app.models.response_builder import ResponseBuilder
+from app.models.token import TokenOut
 from app.auth.jwt_handler import validate_jwt_token, create_access_token, get_payload_data, create_jwt_token
-from app.database.token import Token
+from app.database.token_db import Token
+import app.api.login_api as login
 from sqlalchemy import and_
 from logging import getLogger
 logger = getLogger(__name__)
@@ -74,5 +80,11 @@ class AuthService:
 
         except Exception as e:
             logger.error(f"An Exception occurred in create_token:{e}")
+
+def validate_user(token : Annotated[str, Depends(login.oauth2_scheme)]):
+    logger.info("From get_current_user....")
+    is_valid, message = validate_jwt_token(token)
+    if not is_valid:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=message)
 
 

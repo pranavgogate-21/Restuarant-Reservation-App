@@ -38,10 +38,10 @@ def validate_jwt_token(token: str):
         data = jwt.get_unverified_claims(token)
         if data["iss"] != ISSUER:
             logger.info("Invalid Token Issuer mismatch")
-            return False, "Invalid Token Issuer mismatch"
+            return False, "Invalid Token"
         if int(datetime.now(timezone.utc).timestamp()) > data["exp"]:
             logger.info("Expired token")
-            return False, "token expired"
+            return False, "Token expired"
         payload = jwt.decode(token, SECRET_KEY, ALGORITHM, issuer=ISSUER)
         return True, payload
     except JWTError:

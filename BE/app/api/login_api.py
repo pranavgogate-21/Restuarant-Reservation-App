@@ -4,20 +4,18 @@ from fastapi import APIRouter, Depends, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.Models.response_builder import ResponseBuilder
-from app.Models.user import User, UserIn
-from app.auth.jwt_handler import create_jwt_token, validate_jwt_token
+from app.models.response_builder import ResponseBuilder
+from app.models.user import User, UserIn
 from app.auth.password_config import hash_password
 from app.database.db import get_db_session
 from app.database.user_db import USERDB
-from app.Models.LoginRequest import Login
-from app.Models.token import TokenOut
-from app.service.auth_service import AuthService
-import app.service.user_service  as user_serve
+from app.models.token import TokenOut
+import app.service.auth_service as authservice
+from app.service.user_service import UserService
 from app.utils.custom_encoder import ORJSONResponse
 logger = logging.getLogger(__name__)
 
-router = APIRouter()
+router = APIRouter(prefix="/auth")
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login")
 
@@ -42,8 +40,8 @@ async def login_user_and_authenticate(form_data: Annotated[OAuth2PasswordRequest
         logger.info("From login_user_and_authenticate....")
         username = form_data.username
         password = form_data.password
-        user_service = user_serve.UserService(db)
-        auth_service = AuthService(db)
+        user_service = UserService(db)
+        auth_service = authservice.AuthService(db)
         is_authenticated, data = await user_service.authenticate_user(username, password)
         if not is_authenticated:
             if data == "User not Found":
@@ -60,7 +58,7 @@ async def login_user_and_authenticate(form_data: Annotated[OAuth2PasswordRequest
 async def refresh_access_token(token: TokenOut, db: AsyncSession = Depends(get_db_session)):
     try:
         logger.info("From refresh_access_token_api.....")
-        auth_service = AuthService(db)
+        auth_service = authservice.AuthService(db)
         is_created, data = await auth_service.create_access_token_from_refresh_token(token)
         if not is_created:
             return ResponseBuilder.error(data, status.HTTP_401_UNAUTHORIZED)

@@ -22,6 +22,7 @@ def validate_phone_number(phone_number: str):
 
 
 class User(BaseModel):
+    id: str| None = None
     first_name:str | None = None
     last_name:str | None = None
     email:str | None = None
