@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-
+from datetime import date
 from app.database import RestaurantDB
 from app.database.db import get_db_session
 from app.models.response_builder import ResponseBuilder
@@ -10,6 +10,7 @@ from app.service.auth_service import validate_user
 import logging
 
 from app.service.restaurant_service import RestaurantService
+from app.service.timeslot_service import get_time_slots_for_restaurant
 from app.utils.custom_encoder import ORJSONResponse
 
 router = APIRouter(prefix="/restaurants")
@@ -26,6 +27,16 @@ async def get_all_restaurants(db: AsyncSession = Depends(get_db_session)):
         return ORJSONResponse({"data": restaurants}, status_code=status.HTTP_200_OK)
     except Exception as e:
         logger.error("An error occurred in get_all_restaurants")
+        raise e
+
+@router.get("/available_slots", dependencies=[Depends(validate_user)])
+async def get_available_slots(rest_id:str, booking_date:date, db: AsyncSession = Depends(get_db_session)):
+    try:
+        logger.info("From get_available_slots....")
+        result = await get_time_slots_for_restaurant(rest_id, booking_date, db)
+        return ResponseBuilder.success(result, status.HTTP_200_OK)
+    except Exception as e:
+        logger.error("An error occurred in get_available_slots")
         raise e
 
 @router.get("/{rest_id}", dependencies= [Depends(validate_user)])
