@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, status
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import ReservationDB
@@ -26,5 +27,17 @@ async def make_reservation(reservation: Reservation, db: AsyncSession = Depends(
 
     except Exception as e:
         logger.error("An error occurred in make_reservation")
+        raise e
+
+@router.get("/user/{user_id}", dependencies=[Depends(validate_user)])
+async def get_reservation_by_user_id(user_id:str, db: AsyncSession = Depends(get_db_session)):
+    try:
+        logger.info("An error occurred in get_reservation_by_user_id")
+        result = await db.execute(select(ReservationDB).where(ReservationDB.user_id == user_id))
+        result = result.scalars().all()
+        return ORJSONResponse({"data":result}, status_code=status.HTTP_201_CREATED)
+
+    except Exception as e:
+        logger.error("An error occurred in get_reservation_by_user_id")
         raise e
 
