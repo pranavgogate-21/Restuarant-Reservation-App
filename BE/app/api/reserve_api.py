@@ -19,7 +19,7 @@ router = APIRouter(prefix="/reservations")
 @router.post("", dependencies=[Depends(validate_user)])
 async def make_reservation(reservation: Reservation, db: AsyncSession = Depends(get_db_session)):
     try:
-        logger.info("An error occurred in make_reservation")
+        logger.info("From make_reservation....")
         reservation = ReservationDB.from_orm(reservation)
         res_service = ReservationService(db)
         result = await res_service.add_reservation_in_restaurant(reservation)
