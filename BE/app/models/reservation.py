@@ -1,7 +1,8 @@
 import datetime
 import uuid
-
+import enum
 from pydantic import BaseModel
+from app.database.reservation_db import BookingStatus
 
 class Reservation(BaseModel):
     booking_date: datetime.date
@@ -20,6 +21,7 @@ class ReservationUpdate(Reservation):
 
 class ReservationOut(Reservation):
     id: str | None = None
+    status: BookingStatus
 
     class Config:
         from_attributes = True
