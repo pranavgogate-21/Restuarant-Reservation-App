@@ -3,13 +3,12 @@ from datetime import date,time, datetime
 from typing import Optional
 import enum
 from sqlalchemy import Column
-from sqlalchemy.dialects.postgresql import ENUM
-from sqlmodel import SQLModel, Field, Relationship
+from sqlmodel import SQLModel, Field, Relationship, Enum
 
 from app.database import USERDB
 from app.database.restaurant_db import RestaurantDB
 
-class BookingStatus(enum.Enum):
+class BookingStatus(str, enum.Enum):
     active = "ACTIVE"
     cancelled = "CANCELLED"
     completed = "COMPLETED"
@@ -22,9 +21,9 @@ class ReservationDB(SQLModel, table=True):
     booking_date: date = Field(index=True)
     booking_time: time = Field(index=True)
     created_at: datetime = Field(default_factory=datetime.utcnow)
-    two_seater: int
-    four_seater: int
-    status: ENUM[BookingStatus] = Field(default=BookingStatus.active)
+    two_seater: int | None = None
+    four_seater: int | None = None
+    status: BookingStatus = Field(sa_column=Column(Enum(BookingStatus)), default=BookingStatus.active)
     guests:int
 
     user: Optional["USERDB"] = Relationship(back_populates="reservations")
