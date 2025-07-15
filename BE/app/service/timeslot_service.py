@@ -25,10 +25,16 @@ async def get_time_slots_for_restaurant(restaurant_id, booking_date:date, db: As
                                               ReservationDB.booking_date == booking_date)))
         existing_reservations = existing_reservations.scalars().all()
         guests_per_time_slots = defaultdict(int)
+        two_seater_list = defaultdict(int)
+        four_seater_list = defaultdict(int)
         for reservation in existing_reservations:
             guests_per_time_slots[reservation.booking_time] += reservation.guests
+            two_seater_list[reservation.booking_time] += reservation.two_seater
+            four_seater_list[reservation.booking_time] += reservation.four_seater
         working_hours = restaurant.working_hours
         capacity = restaurant.capacity
+        total_two_seaters = restaurant.two_seater_count
+        total_four_seaters = restaurant.four_seater_count
         day = number_to_days[booking_date.weekday()]
         timings = working_hours[day]
         timings = [datetime.combine(date.today(),timing) for timing in timings]
@@ -42,7 +48,9 @@ async def get_time_slots_for_restaurant(restaurant_id, booking_date:date, db: As
             start_time += timedelta(minutes=30)
         available_slots = {}
         for slot in slots:
-            available_slots[slot.strftime("%H:%M")] = capacity - guests_per_time_slots.get(slot,0)
+            table_availability = (two_seater_list.get(slot, 0) < total_two_seaters) or (four_seater_list.get(slot, 0) < total_four_seaters)
+            slot_capacity = capacity - guests_per_time_slots.get(slot,0) if table_availability else 0
+            available_slots[slot.strftime("%H:%M")] = slot_capacity
         return available_slots
 
     except Exception as e:
