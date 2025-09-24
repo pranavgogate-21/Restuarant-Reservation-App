@@ -1,0 +1,25 @@
+.header{
+    display: grid;
+    grid-template-columns: 1fr 4fr 4fr;
+    gap: 2fr;
+    background-color: white;
+    opacity: 80%;
+    place-items: center;
+    padding-left: 5%;
+    padding-right: 5%;
+    height: auto;
+    width: 100%;
+
+}
+
+.logo-svg{
+    height: 54px;
+    width: 72px;
+}
+
+@media (max-width:500px){
+    .logo-svg{
+        height: 36px;
+        width: 48px;
+    }
+}
