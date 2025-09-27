@@ -3,5 +3,6 @@ import { Dashboard } from './dashboard/dashboard';
 import { Login } from './login/login';
 
 export const routes: Routes = [{ path: '', component: Dashboard },
-    {path: 'login', component: Login}
+    {path: 'login', component: Login},
+    {path: '**', redirectTo: 'login'}
 ];

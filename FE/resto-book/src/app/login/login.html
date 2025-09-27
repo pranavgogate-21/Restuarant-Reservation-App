@@ -1,9 +1,16 @@
-<div class="bg-background">
+<div class="bg-background overflow-hidden">
   <app-header />
-  <div class="bg-teal-100 justify-center h-1/2 w-1/5 grid grid-rows-4">
-    <h3>Login</h3>
-    <input type="text" value="username" placeholder="username">
-    <input type="text" value="password" placeholder="password">
-    <button>Login</button>
+  <div class="h-full flex justify-center items-center">
+    <div style="background-color: rgb(7, 7, 7);"
+      class="justify-center items-center h-1/2 w-3/12 grid grid-rows-4 rounded-2xl opacity-80">
+      <h1 class="text-white p-1 text-center">LOGIN</h1>
+      <input type="text" id="username" placeholder="username" [(ngModel)]="this.username"
+        class="text-white p-1 pl-3 border border-amber-300 rounded-xl hover:border hover:border-amber-300 opacity-90"
+        style="background-color: rgb(7, 7, 7);">
+      <input type="password" id="password" placeholder="password" [(ngModel)]="this.password"
+        class="text-white p-1 pl-3  border border-amber-300 rounded-xl">
+      <button class="text-black text-l bg-amber-300 p-2 rounded-xl hover:cursor-pointer opacity-100"
+        (click)="login()">LOGIN</button>
+    </div>
   </div>
 </div>
