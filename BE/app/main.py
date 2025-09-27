@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from app.database.db import init_db
 import uvicorn
 import logging
@@ -8,6 +9,13 @@ from app.api import user_api, login_api, restaurant_api, reserve_api
 app = FastAPI()
 setup_logging()
 logger = logging.getLogger(__name__)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"])
 
 @app.on_event("startup")
 async def on_startup():
